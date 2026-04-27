@@ -1,4 +1,5 @@
 "use client";
+import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -10,8 +11,26 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm();
 
-  const handleRegister = (data) => {
-    console.log("Registration Data:", data);
+  const handleRegister = async (formData) => {
+    const { name, email, password, image } = formData;
+
+    const { data: result, error } = await authClient.signUp.email({
+      name: name,
+      photo: image,
+      email: email,
+      password: password,
+      redirect: "http://localhost:3000/",
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+
+    if (result) {
+      alert("Registration successful");
+    }
+
+    console.log(result, error);
   };
 
   return (
@@ -24,7 +43,6 @@ const RegisterPage = () => {
         <hr className="mb-6 border-gray-100" />
 
         <form onSubmit={handleSubmit(handleRegister)} className="space-y-4">
-          {/* Your Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               Your Name
@@ -43,7 +61,10 @@ const RegisterPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+            <label
+              {...register("photoURL")}
+              className="block text-sm font-semibold text-gray-700 mb-1.5"
+            >
               Photo URL
             </label>
             <input
